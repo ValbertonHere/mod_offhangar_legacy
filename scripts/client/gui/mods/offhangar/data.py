@@ -140,11 +140,16 @@ def getOfflineStats():
 	
 	vehTypeXP = dict([(i, 0) for i in vehiclesSet])
 
-	return { 
+	return {
+		'account': {
+			'autoBanTime': 0,
+			'attrs': attrs,
+			'clanDBID': 0,
+			'premiumExpiryTime': time.time()+86400
+		},
 		'stats': {
 			'berths': 40,
 			'accOnline': 0,
-			'autoBanTime': 0,
 			'gold': 1000000,
 			'crystal': 1000,
 			'isFinPswdVerified': True,
@@ -167,7 +172,6 @@ def getOfflineStats():
 			'freeXP': 100000000,
 			'captchaTriesLeft': 0,
 			'fortResource': 0,
-			'premiumExpiryTime': time.time()+86400,
 			'tkillIsSuspected': False,
 			'credits': 100000000,
 			'vehTypeLocks': {},
@@ -181,8 +185,6 @@ def getOfflineStats():
 			'tutorialsCompleted': 33553532,
 			'eliteVehicles': vehiclesSet,
 			'playLimits': ((0, ''), (0, '')),
-			'clanDBID': 0,
-			'attrs': attrs,
 		}
 	}
 
