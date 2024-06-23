@@ -43,11 +43,15 @@ def syncData(requestID, revision, crc, _):
 @baseRequest(AccountCommands.CMD_SYNC_SHOP)
 def syncShop(requestID, revision, dataLen, dataCrc):
 	data = {'rev':revision + 2, 'prevRev': revision}
-	data.update(getOfflineShop())
 	BigWorld.callback(REQUEST_CALLBACK_TIME, packStream(requestID, data))
 	return RequestResult(AccountCommands.RES_STREAM, '', None)
 
 @baseRequest(AccountCommands.CMD_SYNC_DOSSIERS)
 def syncDossiers(requestID, revision, maxChangeTime, _):
 	BigWorld.callback(REQUEST_CALLBACK_TIME, packStream(requestID, (revision + 2, [])))
+	return RequestResult(AccountCommands.RES_STREAM, '', None)
+
+@baseRequest(AccountCommands.CMD_SET_LANGUAGE)
+def setLanguage(requestID, language):
+	BigWorld.callback(REQUEST_CALLBACK_TIME, packStream(requestID, (language)))
 	return RequestResult(AccountCommands.RES_STREAM, '', None)

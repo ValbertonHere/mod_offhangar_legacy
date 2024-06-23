@@ -4,10 +4,12 @@ import functools
 import time
 
 from constants import ACCOUNT_ATTR
-from items import ITEM_TYPE_INDICES, ITEM_TYPE_NAMES
+from nations import INDICES
+
 items.init(True)
-from items import vehicles
+from items import vehicles, ITEM_TYPE_INDICES
 from items.vehicles import g_list, g_cache
+from AccountCommands import VEHICLE_SETTINGS_FLAG
 
 from gui.mods.offhangar.logging import *
 from gui.mods.offhangar.utils import *
@@ -17,99 +19,54 @@ doLog = functools.partial(doLog, 'OFFHANGAR')
 LOG_NOTE = functools.partial(doLog, '[NOTE]')
 LOG_DEBUG = functools.partial(doLog, '[DEBUG]')
 
-def getOfflineShop():
-	return {
-		'berthsPrices': (16,16,[300]),
-		'freeXPConversion': (25,1),
-		'dropSkillsCost': {
-			0: { 'xpReuseFraction': 0.5, 'gold': 0, 'credits': 0 },
-			1: { 'xpReuseFraction': 0.75, 'gold': 0, 'credits': 20000 },
-			2: { 'xpReuseFraction': 1.0, 'gold': 200, 'credits': 0 }
-		},
-		'refSystem': {
-			'maxNumberOfReferrals': 50,
-			'posByXPinTeam': 10,
-			'maxReferralXPPool': 350000,
-			'periods': [(24, 3.0), (168, 2.0), (876000, 1.5)]
-		},
-		'playerEmblemCost': {
-			0: (15, True),
-			30: (6000, False),
-			7: (1500, False)
-		},
-		'premiumCost': {
-			1: 250,
-			3: 650,
-			7: 1250,
-			360: 24000,
-			180: 13500,
-			30: 2500
-		},
-		'winXPFactorMode': 0,
-		'sellPriceModif': 0.5,
-		'passportChangeCost': 50,
-		'exchangeRateForShellsAndEqs': 400,
-		'exchangeRate': 400,
-		'tankmanCost': ({
-				'isPremium': False,
-				'baseRoleLoss': 0.20000000298023224,
-				'gold': 0,
-				'credits': 0,
-				'classChangeRoleLoss': 0.20000000298023224,
-				'roleLevel': 50
-			},
-			{
-				'isPremium': False,
-				'baseRoleLoss': 0.10000000149011612,
-				'gold': 0,
-				'credits': 20000,
-				'classChangeRoleLoss': 0.10000000149011612,
-				'roleLevel': 75
-			},
-			{
-				'isPremium': True,
-				'baseRoleLoss': 0.0,
-				'gold': 200,
-				'credits': 0,
-				'classChangeRoleLoss': 0.0,
-				'roleLevel': 100
-			}),
-		'paidRemovalCost': 10,
-		'dailyXPFactor': 2,
-		'changeRoleCost': 500,
-		'isEnabledBuyingGoldShellsForCredits': True,
-		'items': {},
-		'slotsPrices': (9, [300]),
-		'freeXPToTManXPRate': 10,
-		'defaults': {
-			'items': {},
-			'freeXPToTManXPRate': 0,
-			'goodies': { 'prices': { } }
-		},
-		'sellPriceFactor': 0.5,
-		'isEnabledBuyingGoldEqsForCredits': True,
-		'playerInscriptionCost': {
-			0: (15, True),
-			7: (1500, False),
-			30: (6000, False),
-			'nations': { }
-		}
-	}
+def getOfflineShopItems():
+	shopItems = {}
+	for nationIdx in INDICES.values():
+		nationShopItems = {}
+		nationShopItemsIDs = []
+
+		vehList = g_list.getList(nationIdx)
+
+		for vehInfo in vehList.values():
+			nationShopItems[vehInfo['id']] = (0, vehInfo['id']+990, 1.0, 1)
+			nationShopItemsIDs.append(vehInfo['id'])
+
+		shopItems[nationIdx] = {ITEM_TYPE_INDICES['vehicle']: [nationShopItems, nationShopItemsIDs]}
+		
+	return shopItems
 
 def getOfflineInventory():
 	data = dict((k, {}) for k in ITEM_TYPE_INDICES)
-	
+	i = 1
+	compDescr = {}
 	data[ITEM_TYPE_INDICES['vehicle']] = {
 		'repair': {},
 		'lastCrew': {},
+		'crew': {},
 		'settings': {},
 		'compDescr': {},
 		'eqs': {},
+		'eqsLayout': {},
 		'shells': {},
+		'customizationExpiryTime': {},
 		'lock': {},
-		'shellsLayout': {},
-		'vehicle': {}
+		'shellsLayout': {}
 	}
+	for value in g_list._VehicleList__ids.values():
+		vehicle = vehicles.VehicleDescr(typeID=value)
+		compDescr[i] = vehicle.makeCompactDescr()
+		turretGun = (vehicles.makeIntCompactDescrByID('vehicleTurret', *vehicle.turrets[0][0]['id']), vehicles.makeIntCompactDescrByID('vehicleGun', *vehicle.turrets[0][0]['guns'][0]['id']))
+
+	
+		data[ITEM_TYPE_INDICES['vehicle']]['crew'].update({i: [None] * len(vehicle.type.crewRoles)})
+		data[ITEM_TYPE_INDICES['vehicle']]['settings'].update({i: VEHICLE_SETTINGS_FLAG.AUTO_REPAIR | VEHICLE_SETTINGS_FLAG.AUTO_LOAD})
+		data[ITEM_TYPE_INDICES['vehicle']]['compDescr'].update(compDescr)
+		data[ITEM_TYPE_INDICES['vehicle']]['eqs'].update({i: []})
+		data[ITEM_TYPE_INDICES['vehicle']]['eqsLayout'].update({i: []})
+		data[ITEM_TYPE_INDICES['vehicle']]['shells'].update({i: vehicles.getDefaultAmmoForGun(vehicle.turrets[0][0]['guns'][0])})
+		data[ITEM_TYPE_INDICES['vehicle']]['shellsLayout'].update({i: {turretGun: vehicles.getDefaultAmmoForGun(vehicle.turrets[0][0]['guns'][0])}})
+	
+		i += 1
 
 	return {
 		'inventory': data
@@ -157,7 +114,7 @@ def getOfflineStats():
 			'denunciationsLeft': 0,
 			'freeVehiclesLeft': 0,
 			'refSystem': {'referrals': {}},
-			'slots': 0,
+			'slots': 2000,
 			'battlesTillCaptcha': 0,
 			'hasFinPassword': True,
 			'clanInfo': (None, None, 0, 0, 0),
