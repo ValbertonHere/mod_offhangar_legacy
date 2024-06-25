@@ -1,7 +1,8 @@
-import BigWorld
 import functools
-import AccountCommands
 import cPickle
+
+import AccountCommands
+import BigWorld
 
 from gui.mods.offhangar._constants import CHAT_ACTION_DATA
 from gui.mods.offhangar.logging import *
@@ -12,12 +13,12 @@ class FakeServer(object):
 	def __call__(self, *args, **kwargs):
 		if not self.__isMuted:
 			LOG_DEBUG('%s ( %s, %s )' % (self.__name, args, kwargs))
-			
+
 	def __init__(self, name='Server', isMuted=False):
 		super(FakeServer, self).__init__()
 		self.__isMuted = isMuted
 		self.__name = name
-			
+
 	def __getattr__(self, name):
 		try:
 			return super(FakeServer, self).__getattribute__(name)
@@ -65,10 +66,10 @@ class FakeServer(object):
 		else:
 			LOG_DEBUG('Server.requestFail', requestID, cmd, args)
 			requestID, resultID, errorStr, ext = requestID, AccountCommands.RES_FAILURE, '', None
-			
+
 		if ext is not None:
 			callback = functools.partial(BigWorld.player().onCmdResponseExt, requestID, resultID, errorStr, cPickle.dumps(ext))
 		else:
 			callback = functools.partial(BigWorld.player().onCmdResponse, requestID, resultID, errorStr)
-		
+
 		BigWorld.callback(0.0, callback)

@@ -1,16 +1,16 @@
-import BigWorld
-import functools
-import AccountCommands
-import zlib
 import cPickle
-import game
-
+import functools
+import zlib
 from collections import namedtuple
 
-from gui.mods.offhangar.logging import *
-from gui.mods.offhangar.server import *
+import AccountCommands
+import BigWorld
+import game
+
 from gui.mods.offhangar._constants import *
 from gui.mods.offhangar.data import *
+from gui.mods.offhangar.logging import *
+from gui.mods.offhangar.server import *
 
 RequestResult = namedtuple('RequestResult', ['resultID', 'errorStr', 'data'])
 
@@ -34,7 +34,7 @@ def completeTutorial(requestID, revision, dataLen, dataCrc):
 
 @baseRequest(AccountCommands.CMD_SYNC_DATA)
 def syncData(requestID, revision, crc, _):
-	data = {'rev':revision + 2, 'prevRev': revision}
+	data = {'rev': revision + 2, 'prevRev': revision}
 	data.update(getOfflineInventory())
 	data.update(getOfflineStats())
 	data.update(getOfflineQuestsProgress())
@@ -42,7 +42,7 @@ def syncData(requestID, revision, crc, _):
 
 @baseRequest(AccountCommands.CMD_SYNC_SHOP)
 def syncShop(requestID, revision, dataLen, dataCrc):
-	data = {'rev':revision + 2, 'prevRev': revision}
+	data = {'rev': revision + 2, 'prevRev': revision}
 	BigWorld.callback(REQUEST_CALLBACK_TIME, packStream(requestID, data))
 	return RequestResult(AccountCommands.RES_STREAM, '', None)
 

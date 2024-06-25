@@ -3,27 +3,28 @@
 __author__ = "Iliev Renat, DrWeb7_1 (0.8.x port attempt)"
 __email__ = "iliahonz@gmail.com, <unpublished>"
 
-import BigWorld
-import ResMgr
 import functools
 import inspect
+import json
 import os
+import re
 import shutil
 import tempfile
 import time
-import json
-import re
+
+import BigWorld
+import ResMgr
 
 def byteify(data):
 	'''Encodes data with UTF-8
 	:param data: Data to encode'''
-	if isinstance(data, dict): 
+	if isinstance(data, dict):
 		return dict([(byteify(key), byteify(data)) for key, data in data.iteritems()])
-	elif isinstance(data, list): 
+	elif isinstance(data, list):
 		return [byteify(element) for element in data]
-	elif isinstance(data, unicode): 
+	elif isinstance(data, unicode):
 		return data.encode('utf-8')
-	else: 
+	else:
 		return data
 
 def jsonDump(obj, needFmt=False):
@@ -122,7 +123,7 @@ def override(obj, prop, getter=None, setter=None, deleter=None):
 	:param getter: Getter function
 	:param setter: Setter function
 	:param deleter: Deleter function'''
-	
+
 	if inspect.isclass(obj) and prop.startswith('__') and prop not in dir(obj) + dir(type(obj)):
 		prop = obj.__name__ + prop
 		if not prop.startswith('_'):

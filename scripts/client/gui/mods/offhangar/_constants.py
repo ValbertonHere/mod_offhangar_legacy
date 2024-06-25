@@ -1,5 +1,6 @@
 import cPickle
-from chat_shared import CHAT_RESPONSES, CHAT_ACTIONS, CHAT_COMMANDS
+
+from chat_shared import CHAT_RESPONSES
 
 OFFLINE_SERVER_ADDRESS = 'offline.loc'
 OFFLINE_NICKNAME = 'DrWeb7_1'
@@ -9,12 +10,12 @@ OFFLINE_DBID = 13028161
 
 OFFLINE_GUI_CTX = cPickle.dumps({
     'databaseID': OFFLINE_DBID,
-    'logUXEvents': False, 
-    'aogasStartedAt': 0, 
-    'sessionStartedAt': 0, 
-    'isAogasEnabled': False, 
-    'collectUiStats': False, 
-	'isLongDisconnectedFromCenter': False,
+    'logUXEvents': False,
+    'aogasStartedAt': 0,
+    'sessionStartedAt': 0,
+    'isAogasEnabled': False,
+    'collectUiStats': False,
+    'isLongDisconnectedFromCenter': False,
 }, cPickle.HIGHEST_PROTOCOL)
 
 OFFLINE_SERVER_SETTINGS = {
@@ -34,17 +35,17 @@ OFFLINE_SERVER_SETTINGS = {
 }
 
 CHAT_ACTION_DATA = {
-	'requestID': None,
-	'action': None,
-	'actionResponse': CHAT_RESPONSES.internalError.index(),
-	'time': 0,
-	'sentTime': 0,
-	'channel': 0,
-	'originator': 0,
-	'originatorNickName': '',
-	'group': 0,
-	'data': {},
-	'flags': 0
+    'requestID': None,
+    'action': None,
+    'actionResponse': CHAT_RESPONSES.internalError.index(),
+    'time': 0,
+    'sentTime': 0,
+    'channel': 0,
+    'originator': 0,
+    'originatorNickName': '',
+    'group': 0,
+    'data': {},
+    'flags': 0
 }
 
 REQUEST_CALLBACK_TIME = 0.5

@@ -1,14 +1,18 @@
 import os
 import signal
 
-import BigWorld
-import constants
 import Account
+import BigWorld
 import account_shared
-
-from debug_utils import LOG_CURRENT_EXCEPTION
+import constants
 
 from ConnectionManager import connectionManager, CONNECTION_STATUS
+from GameSessionController import _GameSessionController
+from account_helpers.Shop import Shop
+from debug_utils import LOG_CURRENT_EXCEPTION
+from gui.Scaleform.Login import Login
+from gui.Scaleform.gui_items.Vehicle import Vehicle
+from helpers.time_utils import _TimeCorrector, _g_instance
 from predefined_hosts import g_preDefinedHosts
 
 from gui.mods.offhangar.logging import *
@@ -19,15 +23,6 @@ from gui.mods.offhangar.requests import *
 
 Account.LOG_DEBUG = LOG_DEBUG
 Account.LOG_NOTE = LOG_NOTE
-
-from account_helpers.Shop import Shop
-
-from gui.Scaleform.gui_items.Vehicle import Vehicle
-from gui.Scaleform.Login import Login
-
-from GameSessionController import _GameSessionController
-
-from helpers.time_utils import _TimeCorrector, _g_instance
 
 def fini():
 	# Force killing game process
@@ -140,7 +135,7 @@ def GameSessionController_getWeeklyPlayHours(baseFunc, baseSelf):
         serverRegionalSettings = OFFLINE_SERVER_SETTINGS['regional_settings']
         weekDaysCount = account_shared.currentWeekPlayDaysCount(_g_instance.serverUTCTime, serverRegionalSettings['starting_time_of_a_new_day'], serverRegionalSettings['starting_day_of_a_new_weak'])
         return baseSelf._getDailyPlayHours() + sum(baseSelf._GameSessionController__stats.dailyPlayHours[1:weekDaysCount])
-        
+
 @override(Vehicle, 'canSell')
 def Vehicle_canSell(baseFunc, baseSelf):
 	return BigWorld.player().isOffline or baseFunc(baseSelf)

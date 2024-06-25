@@ -1,21 +1,20 @@
-import nations
-import items
 import functools
 import time
-
 from itertools import cycle
 
-from constants import ACCOUNT_ATTR
-from nations import INDICES
-
-items.init(True)
-from items import vehicles, ITEM_TYPE_INDICES
-from items.vehicles import g_list, g_cache
+import nations
+import items
 from AccountCommands import VEHICLE_SETTINGS_FLAG
+from constants import ACCOUNT_ATTR
+from items import vehicles, ITEM_TYPE_INDICES
+from nations import INDICES
 
 from gui.mods.offhangar.logging import *
 from gui.mods.offhangar.utils import *
 from gui.mods.offhangar._constants import *
+
+items.init(True)
+from items.vehicles import g_list, g_cache # noqa: E402
 
 doLog = functools.partial(doLog, 'OFFHANGAR')
 LOG_NOTE = functools.partial(doLog, '[NOTE]')
@@ -30,11 +29,11 @@ def getOfflineShopItems():
 		vehList = g_list.getList(nationIdx)
 
 		for vehInfo in vehList.values():
-			nationShopItems[vehInfo['id']] = (0, vehInfo['id']+990, 1.0, 1)
+			nationShopItems[vehInfo['id']] = (0, vehInfo['id'] + 990, 1.0, 1)
 			nationShopItemsIDs.append(vehInfo['id'])
 
 		shopItems[nationIdx] = {ITEM_TYPE_INDICES['vehicle']: [nationShopItems, nationShopItemsIDs]}
-		
+
 	return shopItems
 
 def getOfflineInventory():
@@ -110,7 +109,7 @@ def getOfflineStats():
 		value = getattr(ACCOUNT_ATTR, field, None)
 		if isinstance(value, (int, long)):
 			attrs |= value
-	
+
 	vehTypeXP = dict([(i, 0) for i in vehiclesSet])
 
 	return {
@@ -118,7 +117,7 @@ def getOfflineStats():
 			'autoBanTime': 0,
 			'attrs': attrs,
 			'clanDBID': 0,
-			'premiumExpiryTime': time.time()+86400
+			'premiumExpiryTime': time.time() + 86400
 		},
 		'stats': {
 			'berths': 40,
