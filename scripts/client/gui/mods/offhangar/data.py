@@ -3,6 +3,8 @@ import items
 import functools
 import time
 
+from itertools import cycle
+
 from constants import ACCOUNT_ATTR
 from nations import INDICES
 
@@ -38,6 +40,7 @@ def getOfflineShopItems():
 def getOfflineInventory():
 	data = dict((k, {}) for k in ITEM_TYPE_INDICES)
 	i = 1
+	i_crew = 1
 	compDescr = {}
 	data[ITEM_TYPE_INDICES['vehicle']] = {
 		'repair': {},
@@ -52,20 +55,33 @@ def getOfflineInventory():
 		'lock': {},
 		'shellsLayout': {}
 	}
+
+	data[ITEM_TYPE_INDICES['tankman']] = {
+		'vehicle': {},
+		'compDescr': {}
+	}
+
 	for value in g_list._VehicleList__ids.values():
 		vehicle = vehicles.VehicleDescr(typeID=value)
 		compDescr[i] = vehicle.makeCompactDescr()
 		turretGun = (vehicles.makeIntCompactDescrByID('vehicleTurret', *vehicle.turrets[0][0]['id']), vehicles.makeIntCompactDescrByID('vehicleGun', *vehicle.turrets[0][0]['guns'][0]['id']))
 
-	
-		data[ITEM_TYPE_INDICES['vehicle']]['crew'].update({i: [None] * len(vehicle.type.crewRoles)})
+		tmanList = items.tankmen.generateTankmen(value[0], value[1], vehicle.type.crewRoles, False, items.tankmen.MAX_SKILL_LEVEL, [])
+		tmanListCycle = cycle(tmanList)
+
+		data[ITEM_TYPE_INDICES['vehicle']]['crew'].update({i: [tmanID for tmanID in xrange(i_crew, len(tmanList) + i_crew)]})
 		data[ITEM_TYPE_INDICES['vehicle']]['settings'].update({i: VEHICLE_SETTINGS_FLAG.AUTO_REPAIR | VEHICLE_SETTINGS_FLAG.AUTO_LOAD})
 		data[ITEM_TYPE_INDICES['vehicle']]['compDescr'].update(compDescr)
 		data[ITEM_TYPE_INDICES['vehicle']]['eqs'].update({i: []})
 		data[ITEM_TYPE_INDICES['vehicle']]['eqsLayout'].update({i: []})
 		data[ITEM_TYPE_INDICES['vehicle']]['shells'].update({i: vehicles.getDefaultAmmoForGun(vehicle.turrets[0][0]['guns'][0])})
 		data[ITEM_TYPE_INDICES['vehicle']]['shellsLayout'].update({i: {turretGun: vehicles.getDefaultAmmoForGun(vehicle.turrets[0][0]['guns'][0])}})
-	
+
+		for tmanID in xrange(i_crew, len(tmanList) + i_crew):
+			data[ITEM_TYPE_INDICES['tankman']]['vehicle'][tmanID] = i
+			data[ITEM_TYPE_INDICES['tankman']]['compDescr'][tmanID] = next(tmanListCycle)
+			i_crew += 1
+
 		i += 1
 
 	return {
