@@ -6,14 +6,15 @@ import nations
 import items
 from AccountCommands import VEHICLE_SETTINGS_FLAG
 from constants import ACCOUNT_ATTR
-from items import vehicles, ITEM_TYPE_INDICES
-from nations import INDICES
+from items import vehicles, ITEM_TYPE_INDICES, _xml
+from nations import AVAILABLE_NAMES, INDICES
 
 from gui.mods.offhangar.logging import *
 from gui.mods.offhangar.utils import *
 from gui.mods.offhangar._constants import *
 
 items.init(True)
+vehicles.init(True)
 from items.vehicles import g_list, g_cache # noqa: E402
 
 doLog = functools.partial(doLog, 'OFFHANGAR')
@@ -26,12 +27,27 @@ def getOfflineShopItems():
 		nationShopItems = {}
 		nationShopItemsIDs = []
 
-		vehList = g_list.getList(nationIdx)
+		xmlPath = vehicles._VEHICLE_TYPE_XML_PATH + AVAILABLE_NAMES[nationIdx] + '/list.xml'
+		section = ResMgr.openSection(xmlPath)
 
-		for vehInfo in vehList.values():
-			nationShopItems[vehInfo['id']] = (0, vehInfo['id'] + 990, 1.0, 1)
-			nationShopItemsIDs.append(vehInfo['id'])
+		for vname, vsection in section.items():
+			ctx = (None, xmlPath + '/' + vname)
+			price = _xml.readPrice(ctx, vsection, 'price')
 
+			# Read additional price data
+			xmlVehPath = vehicles._VEHICLE_TYPE_XML_PATH + AVAILABLE_NAMES[nationIdx] + '/' + vname + '.xml'
+			vehSec = ResMgr.openSection(xmlVehPath)
+			vehCtx = (None, xmlVehPath)
+			priceFactorCamo = _xml.readFloat(vehCtx, vehSec, 'camouflage/priceFactor')
+			hornPriceFactor = _xml.readFloat(vehCtx, vehSec, 'horns/priceFactor')
+			ResMgr.purge(xmlVehPath, True)
+
+			id = _xml.readInt(ctx, vsection, 'id', 0, 255)
+
+			nationShopItems[id] = (price[0], price[1], priceFactorCamo, hornPriceFactor)
+			nationShopItemsIDs.append(id)
+
+		ResMgr.purge(xmlPath, True)
 		shopItems[nationIdx] = {ITEM_TYPE_INDICES['vehicle']: [nationShopItems, nationShopItemsIDs]}
 
 	return shopItems

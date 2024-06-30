@@ -143,13 +143,12 @@ def Vehicle_canSell(baseFunc, baseSelf):
 @override(Login, 'populateUI')
 def Login_populateUI(baseFunc, baseSelf, proxy):
 	baseFunc(baseSelf, proxy)
- 	connectionManager.connect(OFFLINE_SERVER_ADDRESS, OFFLINE_LOGIN, OFFLINE_PWD, False, False, False)
+	connectionManager.connect(OFFLINE_SERVER_ADDRESS, OFFLINE_LOGIN, OFFLINE_PWD, False, False, False)
 
 @override(Account.PlayerAccount, '__init__')
 def Account_init(baseFunc, baseSelf):
 	baseSelf.isOffline = not baseSelf.name
 	if baseSelf.isOffline:
-		constants.IS_SHOW_SERVER_STATS = False
 		baseSelf.fakeServer = FakeServer()
 		baseSelf.name = OFFLINE_NICKNAME
 		baseSelf.serverSettings = OFFLINE_SERVER_SETTINGS

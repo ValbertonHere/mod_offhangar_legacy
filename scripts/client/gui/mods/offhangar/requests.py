@@ -1,5 +1,6 @@
 import cPickle
 import functools
+import random
 import zlib
 from collections import namedtuple
 
@@ -27,6 +28,14 @@ def packStream(requestID, data):
 	data = zlib.compress(cPickle.dumps(data))
 	desc = cPickle.dumps((len(data), zlib.crc32(data)))
 	return functools.partial(game.onStreamComplete, requestID, desc, data)
+
+@baseRequest(AccountCommands.CMD_REQ_SERVER_STATS)
+def serverStats(requestID, int1, int2, int3):
+	BigWorld.player().receiveServerStats({
+		'clusterCCU': 155000 * (1 - random.uniform(0.0, 0.15)),
+		'regionCCU': 815000 * (1 - random.uniform(0.0, 0.15))
+	})
+	return RequestResult(AccountCommands.RES_SUCCESS, '', None)
 
 @baseRequest(AccountCommands.CMD_COMPLETE_TUTORIAL)
 def completeTutorial(requestID, revision, dataLen, dataCrc):
