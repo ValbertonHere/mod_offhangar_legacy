@@ -4,9 +4,8 @@ import signal
 import Account
 import BigWorld
 import account_shared
-import constants
 
-from ConnectionManager import connectionManager, CONNECTION_STATUS
+from ConnectionManager import connectionManager
 from GameSessionController import _GameSessionController
 from account_helpers.Shop import Shop
 from debug_utils import LOG_CURRENT_EXCEPTION
@@ -24,21 +23,21 @@ from gui.mods.offhangar.requests import *
 Account.LOG_DEBUG = LOG_DEBUG
 Account.LOG_NOTE = LOG_NOTE
 
-def fini():
-	# Force killing game process
-	os.kill(os.getpid(), signal.SIGTERM)
-
 g_preDefinedHosts._hosts.append(g_preDefinedHosts._makeHostItem(OFFLINE_SERVER_ADDRESS, OFFLINE_SERVER_ADDRESS, OFFLINE_SERVER_ADDRESS))
+
+# Force killing game process
+def fini():
+	os.kill(os.getpid(), signal.SIGTERM)
 
 @override(Shop, '__onSyncComplete')
 def Shop__onSyncComplete(baseFunc, baseSelf, syncID, data):
 	data = {
-		'berthsPrices': (16,16,[300]),
-		'freeXPConversion': (25,1),
+		'berthsPrices': (16, 16, [300]),
+		'freeXPConversion': (25, 1),
 		'dropSkillsCost': {
-			0: { 'xpReuseFraction': 0.5, 'gold': 0, 'credits': 0 },
-			1: { 'xpReuseFraction': 0.75, 'gold': 0, 'credits': 20000 },
-			2: { 'xpReuseFraction': 1.0, 'gold': 200, 'credits': 0 }
+			0: {'xpReuseFraction': 0.5, 'gold': 0, 'credits': 0},
+			1: {'xpReuseFraction': 0.75, 'gold': 0, 'credits': 20000},
+			2: {'xpReuseFraction': 1.0, 'gold': 200, 'credits': 0}
 		},
 		'refSystem': {
 			'maxNumberOfReferrals': 50,
@@ -64,44 +63,51 @@ def Shop__onSyncComplete(baseFunc, baseSelf, syncID, data):
 		'passportChangeCost': 50,
 		'exchangeRateForShellsAndEqs': 400,
 		'exchangeRate': 400,
-		'customization': {},
 		'tankmanCost': ({
-				'isPremium': False,
-				'baseRoleLoss': 0.20000000298023224,
-				'gold': 0,
-				'credits': 0,
-				'classChangeRoleLoss': 0.20000000298023224,
-				'roleLevel': 50
-			},
-			{
-				'isPremium': False,
-				'baseRoleLoss': 0.10000000149011612,
-				'gold': 0,
-				'credits': 20000,
-				'classChangeRoleLoss': 0.10000000149011612,
-				'roleLevel': 75
-			},
-			{
-				'isPremium': True,
-				'baseRoleLoss': 0.0,
-				'gold': 200,
-				'credits': 0,
-				'classChangeRoleLoss': 0.0,
-				'roleLevel': 100
-			}),
+			'isPremium': False,
+			'baseRoleLoss': 0.20000000298023224,
+			'gold': 0,
+			'credits': 0,
+			'classChangeRoleLoss': 0.20000000298023224,
+			'roleLevel': 50
+		},
+		{
+			'isPremium': False,
+			'baseRoleLoss': 0.10000000149011612,
+			'gold': 0,
+			'credits': 20000,
+			'classChangeRoleLoss': 0.10000000149011612,
+			'roleLevel': 75
+		},
+		{
+			'isPremium': True,
+			'baseRoleLoss': 0.0,
+			'gold': 200,
+			'credits': 0,
+			'classChangeRoleLoss': 0.0,
+			'roleLevel': 100
+		}),
 		'paidRemovalCost': 10,
 		'dailyXPFactor': 2,
 		'changeRoleCost': 500,
 		'items': getOfflineShopItems(),
-		'customization': {0: {'camouflages': {}}, 1: {'camouflages': {}}, 2: {'camouflages': {}}, 3: {'camouflages': {}},
-						4: {'camouflages': {}}, 5: {'camouflages': {}}, 6: {'camouflages': {}}},
+		'customization': {
+			0: {'camouflages': {}},
+			1: {'camouflages': {}},
+			2: {'camouflages': {}},
+			3: {'camouflages': {}},
+			4: {'camouflages': {}},
+			5: {'camouflages': {}},
+			6: {'camouflages': {}},
+			7: {'camouflages': {}}
+		},
 		'isEnabledBuyingGoldShellsForCredits': True,
 		'slotsPrices': (9, [300]),
 		'freeXPToTManXPRate': 10,
 		'defaults': {
 			'items': {},
 			'freeXPToTManXPRate': 0,
-			'goodies': { 'prices': { } }
+			'goodies': {'prices': {}}
 		},
 		'sellPriceFactor': 0.5,
 		'isEnabledBuyingGoldEqsForCredits': True,
@@ -109,7 +115,7 @@ def Shop__onSyncComplete(baseFunc, baseSelf, syncID, data):
 			0: (15, True),
 			7: (1500, False),
 			30: (6000, False),
-			'nations': { }
+			'nations': {}
 		}
 	}
 
@@ -117,24 +123,24 @@ def Shop__onSyncComplete(baseFunc, baseSelf, syncID, data):
 
 @override(_TimeCorrector, 'serverRegionalTime')
 def TimeCorrector_serverRegionalTime(baseFunc, baseSelf):
-    regionalSecondsOffset = 0
-    try:
-        serverRegionalSettings = OFFLINE_SERVER_SETTINGS['regional_settings']
-        regionalSecondsOffset = serverRegionalSettings['starting_time_of_a_new_day']
-    except Exception:
-        LOG_CURRENT_EXCEPTION()
-    return _g_instance.serverUTCTime + regionalSecondsOffset
+	regionalSecondsOffset = 0
+	try:
+		serverRegionalSettings = OFFLINE_SERVER_SETTINGS['regional_settings']
+		regionalSecondsOffset = serverRegionalSettings['starting_time_of_a_new_day']
+	except Exception:
+		LOG_CURRENT_EXCEPTION()
+	return _g_instance.serverUTCTime + regionalSecondsOffset
 
 @override(_GameSessionController, 'isSessionStartedThisDay')
 def GameSessionController_isSessionStartedThisDay(baseFunc, baseSelf):
-    serverRegionalSettings = OFFLINE_SERVER_SETTINGS['regional_settings']
-    return int(_g_instance.serverRegionalTime) / 86400 == int(baseSelf._GameSessionController__sessionStartedAt + serverRegionalSettings['starting_time_of_a_new_day']) / 86400
+	serverRegionalSettings = OFFLINE_SERVER_SETTINGS['regional_settings']
+	return int(_g_instance.serverRegionalTime) / 86400 == int(baseSelf._GameSessionController__sessionStartedAt + serverRegionalSettings['starting_time_of_a_new_day']) / 86400
 
 @override(_GameSessionController, '_getWeeklyPlayHours')
 def GameSessionController_getWeeklyPlayHours(baseFunc, baseSelf):
-        serverRegionalSettings = OFFLINE_SERVER_SETTINGS['regional_settings']
-        weekDaysCount = account_shared.currentWeekPlayDaysCount(_g_instance.serverUTCTime, serverRegionalSettings['starting_time_of_a_new_day'], serverRegionalSettings['starting_day_of_a_new_weak'])
-        return baseSelf._getDailyPlayHours() + sum(baseSelf._GameSessionController__stats.dailyPlayHours[1:weekDaysCount])
+	serverRegionalSettings = OFFLINE_SERVER_SETTINGS['regional_settings']
+	weekDaysCount = account_shared.currentWeekPlayDaysCount(_g_instance.serverUTCTime, serverRegionalSettings['starting_time_of_a_new_day'], serverRegionalSettings['starting_day_of_a_new_weak'])
+	return baseSelf._getDailyPlayHours() + sum(baseSelf._GameSessionController__stats.dailyPlayHours[1:weekDaysCount])
 
 @override(Vehicle, 'canSell')
 def Vehicle_canSell(baseFunc, baseSelf):
@@ -157,12 +163,12 @@ def Account_init(baseFunc, baseSelf):
 
 	if baseSelf.isOffline:
 		BigWorld.player(baseSelf)
-		print BigWorld.player().serverSettings
 
 @override(Account.PlayerAccount, '__getattribute__')
 def Account_getattribute(baseFunc, baseSelf, name):
 	if name in ('cell', 'base', 'server') and baseSelf.isOffline:
 		name = 'fakeServer'
+	
 	return baseFunc(baseSelf, name)
 
 @override(Account.PlayerAccount, 'onBecomePlayer')
